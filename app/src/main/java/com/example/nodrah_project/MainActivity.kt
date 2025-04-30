@@ -12,6 +12,8 @@ import com.google.firebase.auth.FirebaseAuth
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Alignment
 import androidx.navigation.compose.NavHost
 import com.example.nodrah_project.navigation.authNavGraph
 //import com.example.nodrah_project.navigation.authNavGraph
@@ -49,8 +51,12 @@ class MainActivity : ComponentActivity() {
                     )
 
                     composable("home") {
-                        // Replace with your actual HomeScreen.
-                        Text("Welcome to the Home Screen!")
+                      Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                           // Replace with your actual HomeScreen.
+                           Text("Welcome to the Home Screen!")
+
+                       }
+
                     }
                 }
 
