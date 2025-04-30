@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "89832690932",
+    "project_id": "nodrah-d8ec9",
+    "storage_bucket": "nodrah-d8ec9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:89832690932:android:8faef118b99e868506baa1",
+        "android_client_info": {
+          "package_name": "com.example.nodrah_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_9R-q1bS4U6ueHDmjGDLHciD16z-Pnuo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
