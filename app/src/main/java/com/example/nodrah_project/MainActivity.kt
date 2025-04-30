@@ -54,17 +54,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                    // Add your home screen destination//moooooo
-//                    composable("home") {
-//                        HomeScreen(
-//                            onLogout = {
-//                                authRepository.logout()
-//                                navController.navigate("auth") {
-//                                    popUpTo(0)
-//                                }
-//                            }
-//                        )
-//                    }
                 }
             }
         }
