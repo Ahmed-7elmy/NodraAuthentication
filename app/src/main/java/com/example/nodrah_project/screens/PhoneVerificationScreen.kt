@@ -11,28 +11,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nodrah_project.viewModel.PhoneVerificationViewModel
 import kotlinx.coroutines.delay
 
 
 @Composable
-fun EmailVerificationScreen(
-    email: String,
-    onVerify: (code: String) -> Unit,
-    onResendCode: () -> Unit,
-    cooldownSeconds: Int = 30
+fun PhoneVerificationScreen(
+    phone: String,
+    viewModel: PhoneVerificationViewModel = viewModel(),
+    onVerificationSuccess: () -> Unit = {},
+    onNavigateBack: () -> Unit = {}
 ) {
-    var verificationCode by remember { mutableStateOf("") }
-    var remainingSeconds by remember { mutableStateOf(cooldownSeconds) }
-    var isResendEnabled by remember { mutableStateOf(false) }
+    val verificationCode by viewModel.verificationCode.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val remainingSeconds by viewModel.remainingSeconds.collectAsState()
+    val isResendEnabled by viewModel.isResendEnabled.collectAsState()
 
-    // Countdown timer for resend button
-    LaunchedEffect(remainingSeconds) {
-        if (remainingSeconds > 0) {
-            delay(1000)
-            remainingSeconds--
-            isResendEnabled = false
-        } else {
-            isResendEnabled = true
+    // Handle verification success
+    LaunchedEffect(viewModel.verificationSuccess.collectAsState().value) {
+        if (viewModel.verificationSuccess.value) {
+            onVerificationSuccess()
         }
     }
 
@@ -46,22 +46,22 @@ fun EmailVerificationScreen(
 
         // Header
         Text(
-            text = "Please Check your Email",
+            text = "Verify Your Phone Number",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Email display
+        // Phone display
         Text(
-            text = "We've sent a code to",
+            text = "We've sent a verification code to",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
 
         Text(
-            text = email,
+            text = phone,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -70,19 +70,45 @@ fun EmailVerificationScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         // OTP Input
+        OtpTextField(
+            otpText = verificationCode,
+            onOtpTextChange = { code ->
+                viewModel.onVerificationCodeChanged(code)
+                if (code.length == 6) {
+                    viewModel.verifyCode(phone)
+                }
+            },
+            isError = errorMessage != null
+        )
 
+        // Error message
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage!!,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(40.dp))
 
         // Verify Button
         Button(
-            onClick = { onVerify(verificationCode) },
+            onClick = { viewModel.verifyCode(phone) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            enabled = verificationCode.length == 6
+            enabled = verificationCode.length == 6 && !isLoading
         ) {
-            Text("Verify", style = MaterialTheme.typography.labelLarge)
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text("Verify", style = MaterialTheme.typography.labelLarge)
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -102,18 +128,23 @@ fun EmailVerificationScreen(
         TextButton(
             onClick = {
                 if (isResendEnabled) {
-                    onResendCode()
-                    remainingSeconds = cooldownSeconds
+                    viewModel.resendCode(phone)
                 }
             },
             enabled = isResendEnabled
         ) {
             Text(
                 text = if (isResendEnabled) "Resend Code"
-                else "Send code again in ${remainingSeconds.toString().padStart(2, '0')}",
+                else "Resend code in ${remainingSeconds}s",
                 color = if (isResendEnabled) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
+        }
+
+        // Back button
+        Spacer(modifier = Modifier.weight(1f))
+        TextButton(onClick = onNavigateBack) {
+            Text("Back to Phone Entry")
         }
     }
 }
@@ -121,12 +152,13 @@ fun EmailVerificationScreen(
 @Composable
 fun OtpTextField(
     otpText: String,
-    onOtpTextChange: (String) -> Unit
+    onOtpTextChange: (String) -> Unit,
+    isError: Boolean = false
 ) {
     BasicTextField(
         value = otpText,
         onValueChange = onOtpTextChange,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         decorationBox = {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 repeat(6) { index ->
@@ -142,6 +174,7 @@ fun OtpTextField(
                             .border(
                                 width = 1.dp,
                                 color = when {
+                                    isError -> MaterialTheme.colorScheme.error
                                     isFocused -> MaterialTheme.colorScheme.primary
                                     else -> MaterialTheme.colorScheme.outline
                                 },

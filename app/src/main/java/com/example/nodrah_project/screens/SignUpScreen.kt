@@ -46,6 +46,7 @@ fun SignUpScreen(
     onSignUpSuccess: () -> Unit = {},
     onVerificationSent: () -> Unit = {},
     onFacebookLogin: () -> Unit = {},
+    onPhoneLogin: () -> Unit = {}
 
     ) {
     // Collect state from ViewModel
@@ -284,6 +285,12 @@ fun SignUpScreen(
             text = "Continue With Facebook",
             icon = painterResource(R.drawable.facebook), // Replace with actual Facebook icon
             onClick = onFacebookLogin
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        SocialLoginButton(
+            text = "Continue With Phone",
+            icon = painterResource(R.drawable.phone),
+            onClick = onPhoneLogin
         )
     }
 }

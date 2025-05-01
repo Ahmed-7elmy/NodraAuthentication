@@ -1,5 +1,6 @@
 package com.example.nodrah_project.navigation
 
+import android.R.attr.phoneNumber
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -13,6 +14,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.nodrah_project.screens.ForgotPasswordScreen
+import com.example.nodrah_project.screens.PhoneVerificationScreen
+import com.example.nodrah_project.screens.PutYourPhoneNumberScreen
+import com.example.nodrah_project.viewModel.PhoneAuthViewModel
 
 
 fun NavGraphBuilder.authNavGraph(
@@ -46,7 +50,13 @@ fun NavGraphBuilder.authNavGraph(
                     navController.navigate("verify_email") {
                         popUpTo("signup") { inclusive = true }
                     }
+                },
+                onPhoneLogin = {
+                    navController.navigate("phone_auth") {
+                        popUpTo("signup") { inclusive = true }
+                    }
                 }
+
             )
         }
 
@@ -72,5 +82,53 @@ fun NavGraphBuilder.authNavGraph(
                 },
             )
         }
+        composable("phone_auth") {
+            val viewModel: PhoneAuthViewModel = viewModel()
+            val phoneNumber by viewModel.phoneNumber.collectAsState()
+            val loading by viewModel.loading.collectAsState()
+            val phoneError by viewModel.phoneError.collectAsState()
+
+            PutYourPhoneNumberScreen(
+                phoneNumber = phoneNumber,
+                onPhoneChanged = viewModel::onPhoneChanged,
+                onNextClick = {
+                    viewModel.onNextClick {
+                        // After the phone number is validated, navigate to the PhoneVerificationScreen
+                        navController.navigate("phone_verification/${phoneNumber}") {
+                            popUpTo("phone_auth") { inclusive = true }
+                        }
+                    }
+                },
+                loading = loading,
+                phoneError = phoneError,
+                onResetSent = { navController.popBackStack() },
+                onBack = { navController.popBackStack() },
+                onLoginClick = {
+                    navController.navigate("login") {
+                        popUpTo("phone_auth") { inclusive = true }
+                    }
+                }
+            )
+        }
+        // In your navigation graph:
+        composable("phone_verification/{phone}") { backStackEntry ->
+            PhoneVerificationScreen(
+                phone = backStackEntry.arguments?.getString("phone") ?: "",
+                onVerificationSuccess = {
+                    navController.navigate("home") {
+                        popUpTo("auth") { inclusive = true }
+                    }
+                },
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+
+
+
+
+
     }
 }

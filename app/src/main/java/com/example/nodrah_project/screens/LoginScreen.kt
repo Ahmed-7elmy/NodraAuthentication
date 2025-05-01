@@ -35,7 +35,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-    modifier: Modifier = Modifier,  // Add this parameter
+    modifier: Modifier = Modifier,
     onLoginSuccess: () -> Unit = {},
     onForgotPassword: () -> Unit = {},
     onSignUpClick: () -> Unit = {},
@@ -277,6 +277,12 @@ fun LoginScreen(
         SocialLoginButton(
             text = "Continue With Facebook",
             icon = painterResource(id = R.drawable.facebook), // Replace with actual Facebook icon
+            onClick = onFacebookLogin
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        SocialLoginButton(
+            text = "Continue With Phone",
+            icon = painterResource(R.drawable.phone),
             onClick = onFacebookLogin
         )
     }
