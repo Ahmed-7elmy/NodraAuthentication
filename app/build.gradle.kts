@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    id("com.google.devtools.ksp")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -66,5 +68,38 @@ dependencies {
     implementation ("androidx.compose.material:material-icons-extended:1.5.4")
     implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
     implementation ("com.google.android.gms:play-services-auth:20.7.0")
+
+    //retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    //Gson converter
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    //Glide
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    //swipe to refresh
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    //likeButton
+    implementation ("com.google.android.material:material:1.6.0")
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-runtime:2.7.1")
+
+    implementation("androidx.navigation:navigation-compose:2.8.9")
+    implementation ("androidx.compose.material:material-icons-extended:1.7.8")// Acc icon
+
+    // Retrofit for networking
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    // Kotlin Coroutines for asynchronous operations
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    // Use the latest stable version
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+    // Coil for image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    // Moshi for JSON parsing
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    implementation("androidx.media3:media3-ui:1.3.1") // If you've migrated fully to media3
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+
+    implementation("androidx.compose.material:material-icons-extended")
+
 
 }
