@@ -1,5 +1,6 @@
 package com.example.nodrah_project.screens
 
+import android.content.Context
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -8,20 +9,31 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nodrah_project.repository.AuthRepository
 import com.example.nodrah_project.viewModel.PhoneVerificationViewModel
+import com.example.nodrah_project.viewModel.PhoneVerificationViewModelFactory
 import kotlinx.coroutines.delay
 
 
 @Composable
 fun PhoneVerificationScreen(
     phone: String,
-    viewModel: PhoneVerificationViewModel = viewModel(),
+    authRepository: AuthRepository,
     onVerificationSuccess: () -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    viewModel: PhoneVerificationViewModel = viewModel(
+        factory = PhoneVerificationViewModelFactory(
+            authRepository,
+            context = TODO()
+        )
+    )
 ) {
     val verificationCode by viewModel.verificationCode.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -75,7 +87,7 @@ fun PhoneVerificationScreen(
             onOtpTextChange = { code ->
                 viewModel.onVerificationCodeChanged(code)
                 if (code.length == 6) {
-                    viewModel.verifyCode(phone)
+                    viewModel.verifyCode()
                 }
             },
             isError = errorMessage != null
@@ -94,7 +106,7 @@ fun PhoneVerificationScreen(
 
         // Verify Button
         Button(
-            onClick = { viewModel.verifyCode(phone) },
+            onClick = { viewModel.verifyCode() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

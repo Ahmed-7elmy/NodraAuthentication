@@ -2,6 +2,7 @@ package com.example.nodrah_project.repository
 
 import com.example.nodrah_project.domain.UserModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.PhoneAuthCredential
 import kotlinx.coroutines.tasks.await
 
 sealed class AuthResult {
@@ -41,14 +42,14 @@ class AuthRepository(private val auth: FirebaseAuth = FirebaseAuth.getInstance()
         return UserModel.fromFirebaseUser(auth.currentUser)
     }
 
-    suspend fun reloadUser(): AuthResult {
-        return try {
-            auth.currentUser?.reload()?.await()
-            AuthResult.Success
-        } catch (e: Exception) {
-            AuthResult.Error(e.message ?: "Failed to refresh user")
-        }
-    }
+//    suspend fun reloadUser(): AuthResult {
+//        return try {
+//            auth.currentUser?.reload()?.await()
+//            AuthResult.Success
+//        } catch (e: Exception) {
+//            AuthResult.Error(e.message ?: "Failed to refresh user")
+//        }
+//    }
     suspend fun sendVerificationEmail(): AuthResult {
         return try {
             auth.currentUser?.sendEmailVerification()?.await()
@@ -68,5 +69,16 @@ class AuthRepository(private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     fun isUserLoggedIn(): Boolean {
         return auth.currentUser != null
+    }
+    suspend fun signInWithPhoneCredential(credential: PhoneAuthCredential): AuthResult {
+        return try {
+            auth.signInWithCredential(credential).await()
+            AuthResult.Success
+        } catch (e: Exception) {
+            AuthResult.Error(e.message ?: "Phone verification failed")
+        }
+    }
+    fun isPhoneUser(): Boolean {
+        return auth.currentUser?.phoneNumber != null
     }
 }

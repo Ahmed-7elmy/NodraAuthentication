@@ -127,25 +127,7 @@ class SignUpViewModel(
                 }
             }
     }
-    fun verifyCode(code: String) {
-        viewModelScope.launch {
-            // Implement your verification logic
-            // For Firebase, you might need to implement this differently
-            // since Firebase typically uses email links
-        }
-    }
-    fun resendVerificationCode() {
-        viewModelScope.launch {
-            authRepository.sendVerificationEmail()
-        }
-    }
 
 
 
-    // Utility
-    fun clearErrors() {
-        _emailError.value = null
-        _passwordError.value = null
-        _signUpResult.value = null
-    }
 }

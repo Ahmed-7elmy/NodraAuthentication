@@ -60,7 +60,6 @@ fun SignUpScreen(
     val verificationSent by viewModel.verificationSent.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
-    // ✅ Place this at the top of your Composable
     val context = LocalContext.current
     val googleSignInClient = remember {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -143,7 +142,7 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         // Email Field
-        OutlinedTextField(
+        OutlinedTextField(//here is the supposed to change email
             value = email,
             onValueChange = viewModel::onEmailChanged,
             label = { Text("Email") },

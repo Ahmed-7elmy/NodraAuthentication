@@ -13,29 +13,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
-
 @Composable
 fun EmailVerificationScreen(
     email: String,
-    onVerify: (code: String) -> Unit,
-    onResendCode: () -> Unit,
-    cooldownSeconds: Int = 30
+    onLoginClick: () -> Unit // Add this parameter
 ) {
-    var verificationCode by remember { mutableStateOf("") }
-    var remainingSeconds by remember { mutableStateOf(cooldownSeconds) }
-    var isResendEnabled by remember { mutableStateOf(false) }
-
-    // Countdown timer for resend button
-    LaunchedEffect(remainingSeconds) {
-        if (remainingSeconds > 0) {
-            delay(1000)
-            remainingSeconds--
-            isResendEnabled = false
-        } else {
-            isResendEnabled = true
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,7 +26,6 @@ fun EmailVerificationScreen(
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Header
         Text(
             text = "Please Check your Email",
             style = MaterialTheme.typography.headlineSmall,
@@ -53,9 +34,8 @@ fun EmailVerificationScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Email display
         Text(
-            text = "We've sent a code to",
+            text = "We've sent an Email to your email address $email",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
@@ -69,95 +49,16 @@ fun EmailVerificationScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // OTP Input
-
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        // Verify Button
         Button(
-            onClick = { onVerify(verificationCode) },
+            onClick = onLoginClick, // Use the callback here
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            enabled = verificationCode.length == 6
         ) {
-            Text("Verify", style = MaterialTheme.typography.labelLarge)
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Resend Code Section
-        Divider(modifier = Modifier.fillMaxWidth())
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Didn't Receive Code?",
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextButton(
-            onClick = {
-                if (isResendEnabled) {
-                    onResendCode()
-                    remainingSeconds = cooldownSeconds
-                }
-            },
-            enabled = isResendEnabled
-        ) {
-            Text(
-                text = if (isResendEnabled) "Resend Code"
-                else "Send code again in ${remainingSeconds.toString().padStart(2, '0')}",
-                color = if (isResendEnabled) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-            )
+            Text("login please", style = MaterialTheme.typography.labelLarge)
         }
     }
 }
 
-@Composable
-fun OtpTextField(
-    otpText: String,
-    onOtpTextChange: (String) -> Unit
-) {
-    BasicTextField(
-        value = otpText,
-        onValueChange = onOtpTextChange,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-        decorationBox = {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                repeat(6) { index ->
-                    val char = when {
-                        index >= otpText.length -> ""
-                        else -> otpText[index].toString()
-                    }
-                    val isFocused = otpText.length == index
 
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .border(
-                                width = 1.dp,
-                                color = when {
-                                    isFocused -> MaterialTheme.colorScheme.primary
-                                    else -> MaterialTheme.colorScheme.outline
-                                },
-                                shape = MaterialTheme.shapes.small
-                            )
-                            .padding(2.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = char,
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            }
-        }
-    )
-}
+

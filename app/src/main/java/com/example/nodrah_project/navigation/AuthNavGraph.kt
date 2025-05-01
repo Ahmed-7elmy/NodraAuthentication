@@ -1,6 +1,7 @@
 package com.example.nodrah_project.navigation
 
 import android.R.attr.phoneNumber
+import android.widget.Toast
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -66,10 +67,14 @@ fun NavGraphBuilder.authNavGraph(
 
             EmailVerificationScreen(
                 email = email,
-                onVerify = { code -> viewModel.verifyCode(code) },
-                onResendCode = { viewModel.resendVerificationCode() }
+                onLoginClick = {
+                    navController.navigate("login") {
+                        popUpTo("verify_email") { inclusive = true }
+                    }
+                }
             )
         }
+
 
         composable("forgot_password") {
             ForgotPasswordScreen(
@@ -115,13 +120,16 @@ fun NavGraphBuilder.authNavGraph(
             PhoneVerificationScreen(
                 phone = backStackEntry.arguments?.getString("phone") ?: "",
                 onVerificationSuccess = {
+
                     navController.navigate("home") {
                         popUpTo("auth") { inclusive = true }
                     }
                 },
                 onNavigateBack = {
                     navController.popBackStack()
-                }
+                },
+                authRepository = TODO(),
+                viewModel = TODO()
             )
         }
 
