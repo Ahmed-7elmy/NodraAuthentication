@@ -1,4 +1,4 @@
-package com.example.nodrah_project.navigation
+package com.example.nodrah_project
 
 import android.content.Intent
 import android.os.Bundle
@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.*
 import com.example.nodrah_project.HomeActivity
+import com.example.nodrah_project.navigation.authNavGraph
 import com.example.nodrah_project.repository.AuthRepository
 import com.example.nodrah_project.ui.theme.Nodrah_projectTheme
 import com.google.firebase.FirebaseApp
