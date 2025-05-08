@@ -1,24 +1,52 @@
 package com.example.nodrah_project.navigation
 
-import android.R.attr.phoneNumber
-import android.widget.Toast
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.nodrah_project.screens.LoginScreen
-import com.example.nodrah_project.screens.SignUpScreen
-import com.example.nodrah_project.screens.EmailVerificationScreen
-import com.example.nodrah_project.viewModel.SignUpViewModel
 import com.example.nodrah_project.repository.AuthRepository
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import com.example.nodrah_project.screens.EmailVerificationScreen
 import com.example.nodrah_project.screens.ForgotPasswordScreen
-import com.example.nodrah_project.screens.PhoneVerificationScreen
+import com.example.nodrah_project.screens.LoginScreen
 import com.example.nodrah_project.screens.PutYourPhoneNumberScreen
+import com.example.nodrah_project.screens.SignUpScreen
+import com.example.nodrah_project.ui.screens.PhoneVerificationScreen
 import com.example.nodrah_project.viewModel.PhoneAuthViewModel
+import com.example.nodrah_project.viewModel.SignUpViewModel
 
+// Helper function to find Activity from Context
+fun Context.findActivity(): Activity {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    throw IllegalStateException("No Activity found")
+}
+
+// Factory for PhoneAuthViewModel
+class PhoneAuthViewModelFactory(
+    private val repository: AuthRepository
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(PhoneAuthViewModel::class.java)) {
+            return PhoneAuthViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 
 fun NavGraphBuilder.authNavGraph(
     navController: NavController,
@@ -57,7 +85,6 @@ fun NavGraphBuilder.authNavGraph(
                         popUpTo("signup") { inclusive = true }
                     }
                 }
-
             )
         }
 
@@ -75,7 +102,6 @@ fun NavGraphBuilder.authNavGraph(
             )
         }
 
-
         composable("forgot_password") {
             ForgotPasswordScreen(
                 onResetSent = { navController.popBackStack() },
@@ -84,59 +110,63 @@ fun NavGraphBuilder.authNavGraph(
                     navController.navigate("login") {
                         popUpTo("forgot_password") { inclusive = true }
                     }
-                },
-            )
-        }
-        composable("phone_auth") {
-            val viewModel: PhoneAuthViewModel = viewModel()
-            val phoneNumber by viewModel.phoneNumber.collectAsState()
-            val loading by viewModel.loading.collectAsState()
-            val phoneError by viewModel.phoneError.collectAsState()
-
-            PutYourPhoneNumberScreen(
-                phoneNumber = phoneNumber,
-                onPhoneChanged = viewModel::onPhoneChanged,
-                onNextClick = {
-                    viewModel.onNextClick {
-                        // After the phone number is validated, navigate to the PhoneVerificationScreen
-                        navController.navigate("phone_verification/${phoneNumber}") {
-                            popUpTo("phone_auth") { inclusive = true }
-                        }
-                    }
-                },
-                loading = loading,
-                phoneError = phoneError,
-                onResetSent = { navController.popBackStack() },
-                onBack = { navController.popBackStack() },
-                onLoginClick = {
-                    navController.navigate("login") {
-                        popUpTo("phone_auth") { inclusive = true }
-                    }
                 }
             )
         }
-        // In your navigation graph:
-        composable("phone_verification/{phone}") { backStackEntry ->
-            PhoneVerificationScreen(
-                phone = backStackEntry.arguments?.getString("phone") ?: "",
-                onVerificationSuccess = {
 
-                    navController.navigate("home") {
-                        popUpTo("auth") { inclusive = true }
+        composable("phone_auth") {
+            val vm: PhoneAuthViewModel = viewModel(factory = PhoneAuthViewModelFactory(authRepository))
+            val phone by vm.phone.collectAsState()
+            val phoneError by vm.phoneError.collectAsState()
+            val sending by vm.isSendingCode.collectAsState()
+            val context = LocalContext.current
+            val activity = context.findActivity()
+
+            PutYourPhoneNumberScreen(
+                phoneNumber = phone,
+                onPhoneChanged = vm::onPhoneChanged,
+                onNextClick = {
+                    vm.startVerification(activity) {
+                        navController.navigate("phone_verification")
                     }
                 },
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
-                authRepository = TODO(),
-                viewModel = TODO()
+                loading = sending,
+                phoneError = phoneError
             )
         }
 
+        composable("phone_verification") {
+            val vm: PhoneAuthViewModel = viewModel(factory = PhoneAuthViewModelFactory(authRepository))
+            val phone by vm.phone.collectAsState()
+            val otp by vm.otp.collectAsState()
+            val otpError by vm.otpError.collectAsState()
+            val verifying by vm.isVerifying.collectAsState()
+            val remaining by vm.remainingSeconds.collectAsState()
+            val canResend by vm.canResend.collectAsState()
+            val success by vm.verificationSuccess.collectAsState()
+            val context = LocalContext.current
+            val activity = context.findActivity()
 
+            LaunchedEffect(success) {
+                if (success) navController.navigate("home") {
+                    popUpTo("auth") { inclusive = true }
+                }
+            }
 
-
-
-
+            PhoneVerificationScreen(
+                phoneNumber = phone,
+                otp = otp,
+                onOtpChanged = vm::onOtpChanged,
+                onVerify = vm::verifyOtp,
+                loading = verifying,
+                error = otpError,
+                remainingSeconds = remaining,
+                canResend = canResend,
+                onResend = {
+                    vm.resendCode(activity)
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 }

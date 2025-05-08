@@ -1,163 +1,143 @@
-package com.example.nodrah_project.screens
+package com.example.nodrah_project.ui.screens
 
-import android.content.Context
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nodrah_project.repository.AuthRepository
-import com.example.nodrah_project.viewModel.PhoneVerificationViewModel
-import com.example.nodrah_project.viewModel.PhoneVerificationViewModelFactory
-import kotlinx.coroutines.delay
-
 
 @Composable
 fun PhoneVerificationScreen(
-    phone: String,
-    authRepository: AuthRepository,
-    onVerificationSuccess: () -> Unit = {},
-    onNavigateBack: () -> Unit = {},
-    viewModel: PhoneVerificationViewModel = viewModel(
-        factory = PhoneVerificationViewModelFactory(
-            authRepository,
-            context = TODO()
-        )
-    )
+    phoneNumber: String,
+    otp: String,
+    onOtpChanged: (String) -> Unit,
+    onVerify: () -> Unit,
+    loading: Boolean,
+    error: String?,
+    remainingSeconds: Int,
+    canResend: Boolean,
+    onResend: @Composable () -> Unit,
+    onBack: () -> Unit
 ) {
-    val verificationCode by viewModel.verificationCode.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
-    val remainingSeconds by viewModel.remainingSeconds.collectAsState()
-    val isResendEnabled by viewModel.isResendEnabled.collectAsState()
-
-    // Handle verification success
-    LaunchedEffect(viewModel.verificationSuccess.collectAsState().value) {
-        if (viewModel.verificationSuccess.value) {
-            onVerificationSuccess()
-        }
-    }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
-
-        // Header
-        Text(
-            text = "Verify Your Phone Number",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Phone display
-        Text(
-            text = "We've sent a verification code to",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-        )
-
-        Text(
-            text = phone,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // OTP Input
-        OtpTextField(
-            otpText = verificationCode,
-            onOtpTextChange = { code ->
-                viewModel.onVerificationCodeChanged(code)
-                if (code.length == 6) {
-                    viewModel.verifyCode()
-                }
-            },
-            isError = errorMessage != null
-        )
-
-        // Error message
-        if (errorMessage != null) {
-            Text(
-                text = errorMessage!!,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        // Verify Button
-        Button(
-            onClick = { viewModel.verifyCode() },
+        // Top section
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
-            enabled = verificationCode.length == 6 && !isLoading
+                .padding(top = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp
+            // Back button
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(bottom = 16.dp),
+                content = {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back to phone entry"
+                    )
+                }
+            )
+
+            // Title
+            Text(
+                text = "Verify Your Phone",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            // Subtitle with phone number
+            Text(
+                text = "Enter the 6-digit code sent to $phoneNumber",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+
+            // OTP TextField
+            OtpTextField(
+                otpText = otp,
+                onOtpTextChange = onOtpChanged,
+                isError = error != null,
+                onDone = {
+                    onVerify()
+                    keyboardController?.hide()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+
+            // Error message
+            error?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
-            } else {
-                Text("Verify", style = MaterialTheme.typography.labelLarge)
+            }
+
+            // Verify button
+            Button(
+                onClick = {
+                    onVerify()
+                    keyboardController?.hide()
+                },
+                enabled = !loading && otp.length == 6,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                if (loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Verify Code")
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Resend Code Section
-        Divider(modifier = Modifier.fillMaxWidth())
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Didn't Receive Code?",
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextButton(
-            onClick = {
-                if (isResendEnabled) {
-                    viewModel.resendCode(phone)
-                }
-            },
-            enabled = isResendEnabled
+        // Bottom section: Resend code
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = if (isResendEnabled) "Resend Code"
-                else "Resend code in ${remainingSeconds}s",
-                color = if (isResendEnabled) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                text = if (remainingSeconds > 0) "Resend in $remainingSeconds s" else "Didn't receive code?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        }
 
-        // Back button
-        Spacer(modifier = Modifier.weight(1f))
-        TextButton(onClick = onNavigateBack) {
-            Text("Back to Phone Entry")
+
         }
     }
 }
@@ -166,20 +146,35 @@ fun PhoneVerificationScreen(
 fun OtpTextField(
     otpText: String,
     onOtpTextChange: (String) -> Unit,
-    isError: Boolean = false
+    isError: Boolean = false,
+    onDone: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     BasicTextField(
         value = otpText,
-        onValueChange = onOtpTextChange,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        onValueChange = {
+            if (it.length <= 6 && it.all { ch -> ch.isDigit() }) {
+                onOtpTextChange(it)
+            }
+        },
+        modifier = modifier,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                onDone()
+                keyboardController?.hide()
+            }
+        ),
         decorationBox = {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 repeat(6) { index ->
-                    val char = when {
-                        index >= otpText.length -> ""
-                        else -> otpText[index].toString()
-                    }
-                    val isFocused = otpText.length == index
+                    val char = otpText.getOrNull(index)?.toString() ?: ""
+                    val isFocused = otpText.length == index || (index == 5 && otpText.length == 6)
 
                     Box(
                         modifier = Modifier
@@ -207,5 +202,3 @@ fun OtpTextField(
         }
     )
 }
-
-

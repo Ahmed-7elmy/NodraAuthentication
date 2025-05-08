@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
             Nodrah_projectTheme {
                 val navController = rememberNavController()
                 val startDestination = remember {
-                    if (authRepository.isUserLoggedIn()) "home" else "auth"
+                    if (authRepository.isUserLoggedIn()) "auth" else "auth"
                 }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

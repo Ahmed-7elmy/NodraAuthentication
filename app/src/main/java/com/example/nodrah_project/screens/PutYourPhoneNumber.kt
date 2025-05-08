@@ -2,8 +2,6 @@ package com.example.nodrah_project.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,24 +38,20 @@ fun PutYourPhoneNumberScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         val prefix = "+2"
-        val editableNumber = phoneNumber.removePrefix(prefix)
 
         OutlinedTextField(
             value = phoneNumber,
             onValueChange = { newValue ->
-                // Prevent deletion of prefix
-                if (newValue.startsWith(prefix)) {
+                if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
                     onPhoneChanged(newValue)
-                } else if (newValue.length >= prefix.length && !newValue.contains("+")) {
-                    // If user tries to type from scratch without '+', auto-correct
-                    onPhoneChanged(prefix + newValue.removePrefix(prefix))
                 }
             },
             label = { Text("Phone Number") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             isError = phoneError != null,
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            prefix = { Text(prefix) } // Visually show +2
         )
 
         if (phoneError != null) {
@@ -71,8 +65,14 @@ fun PutYourPhoneNumberScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = onNextClick,
-            enabled = !loading,
+            onClick = {
+                // Append +2 to phoneNumber before triggering onNextClick
+                if (phoneNumber.isNotEmpty()) {
+                    onPhoneChanged(prefix + phoneNumber)
+                }
+                onNextClick()
+            },
+            enabled = !loading && phoneNumber.isNotEmpty(),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = if (loading) "Sending..." else "Next")
@@ -80,7 +80,7 @@ fun PutYourPhoneNumberScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = onLoginClick) {
+        TextButton(onClick = { onLoginClick() }) {
             Text("Back to Login")
         }
     }
