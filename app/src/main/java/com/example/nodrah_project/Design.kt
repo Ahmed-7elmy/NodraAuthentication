@@ -1,10 +1,12 @@
 package com.example.nodrah_project
 
 import android.annotation.SuppressLint
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -15,13 +17,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -29,92 +35,160 @@ import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil.request.CachePolicy
+import com.example.nodrah_project.screens.EmailVerificationScreen
+import com.example.nodrah_project.ui.theme.AppTheme
+import com.example.nodrah_project.ui.theme.LocalAppColorScheme
 
 @Composable
 fun RedditPostItem(post: RedditPost) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
+
+    AppTheme {
+        val colors = LocalAppColorScheme.current
+
+
+        Card(
             modifier = Modifier
-                .padding(5.dp)
-                .background(color = Color.White)
+                .fillMaxWidth()
+                .background(Color(0xFFEDEDED))
+                .padding(vertical = 10.dp)
+
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // User Icon
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.baseline_account_circle_24),
-                    contentDescription = "User Avatar",
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-
-                // Author
-                Text(
-                    text = post.author,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.weight(1f) // Take remaining space
-                )
-
-                // More Options
-                Text(
-                    text = "...",
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Title
-            Text(text = post.title, style = MaterialTheme.typography.titleMedium)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Selftext
-            post.selftext?.let {
-                Text(text = it, style = MaterialTheme.typography.bodyLarge)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            // Image
-            post.imageUrl?.let { url ->
-                SubredditImage(url = url)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            // Video
-            post.videoUrl?.let { url ->
-                SubredditVideo(url = url)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            // Like, Comment, Share Buttons
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .background(colors.background)
+                    .padding(0.dp)
+
+
             ) {
-                Text(
-                    text = "Like",
-                    modifier = Modifier.clickable {  }
-                )
-                Text(
-                    text = "Comment",
-                    modifier = Modifier.clickable { }
-                )
-                Text(
-                    text = "Share",
-                    modifier = Modifier.clickable {  }
-                )
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .background(color = colors.background)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // User Icon
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.baseline_account_circle_24),
+                            contentDescription = "User Avatar",
+                            modifier = Modifier.size(40.dp)
+                        )
+                        Spacer(modifier = Modifier.width(20.dp))
+
+                        // Author
+                        Text(
+                            text = post.author,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = colors.onPrimary,
+                            modifier = Modifier.weight(1f) // Take remaining space
+                        )
+
+                        // More Options
+                        Text(
+                            text = "...", color = colors.onPrimary, fontSize = 24.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Title
+                    Text(
+                        text = post.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = colors.onPrimary
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Selftext
+                    post.selftext?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = colors.onPrimary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    // Image
+                    post.imageUrl?.let { url ->
+                        SubredditImage(url = url)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    // Video
+                    post.videoUrl?.let { url ->
+                        SubredditVideo(url = url)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    // Like, Comment, Share Buttons
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(all = 8.dp)
+                            ,
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.like),
+                                contentDescription = "Like Button",
+                                tint = colors.onPrimary,
+                                modifier = Modifier.size(16.dp)
+
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+
+                            Text(
+                                text = "Like",
+                                fontSize = 20.sp,
+                                color = colors.onPrimary,
+                                modifier = Modifier.clickable { })
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.comment),
+                                contentDescription = "Comment Button",
+                                tint = colors.onPrimary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+
+                            Text(
+                                text = "Comment",
+                                fontSize = 20.sp,
+                                color = colors.onPrimary,
+                                modifier = Modifier.clickable { })
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.share),
+                                contentDescription = "Share Button",
+                                tint = colors.onPrimary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+
+                            Text(
+                                text = "Share",
+                                fontSize = 20.sp,
+                                color = colors.onPrimary,
+                                modifier = Modifier.clickable { })
+                        }
+                    }
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun SubredditImage(url: String) {
@@ -125,9 +199,7 @@ fun SubredditImage(url: String) {
     Box(modifier = Modifier.fillMaxWidth()) {
         AsyncImage(
             model = remember(url) { // Use remember with url
-                ImageRequest.Builder(context)
-                    .data(url)
-                    .crossfade(true)
+                ImageRequest.Builder(context).data(url).crossfade(true)
                     .memoryCachePolicy(CachePolicy.DISABLED) // Disable memory cache
                     .diskCachePolicy(CachePolicy.DISABLED)   // Disable disk cache
                     .build()
@@ -139,8 +211,7 @@ fun SubredditImage(url: String) {
                 .heightIn(min = 100.dp),
             onLoading = { loading = true },
             onSuccess = { loading = false },
-            onError = { error = true; loading = false }
-        )
+            onError = { error = true; loading = false })
 
         if (loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -168,16 +239,16 @@ fun SubredditVideo(url: String) {
         onDispose { exoPlayer.release() }
     }
 
-    AndroidView(
-        factory = {
-            PlayerView(context).apply {
-                player = exoPlayer
-                layoutParams = android.view.ViewGroup.LayoutParams(MATCH_PARENT, 400)
-                useController = true
-            }
-        },
-        update = { view ->
-            view.player = exoPlayer
+    AndroidView(factory = {
+        PlayerView(context).apply {
+            player = exoPlayer
+            layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, 400)
+            useController = true
         }
-    )
+    }, update = { view ->
+        view.player = exoPlayer
+    })
 }
+
+
+
