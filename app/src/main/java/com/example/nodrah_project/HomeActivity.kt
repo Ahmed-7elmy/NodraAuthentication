@@ -8,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,10 +23,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
@@ -59,19 +56,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.nodrah_project.ui.theme.Nodrah_projectTheme
+import com.example.nodrah_project.ui.theme.AppTheme
+import com.example.nodrah_project.ui.theme.LocalAppColorScheme
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Nodrah_projectTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            AppTheme {
+                val colors = LocalAppColorScheme.current
+
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = colors.background)
+
+                ) { innerPadding ->
                     MainScreen(modifier = Modifier.padding(innerPadding))
 
                 }
@@ -79,111 +85,136 @@ class HomeActivity : ComponentActivity() {
         }
     }
 
+
     @Composable
     fun HeaderSection() {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            // Top Navigation Bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Noudrah",
-                    fontSize = 30.sp,
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Dots Icon",
-                    )
-                    Icon(
-                        imageVector = Icons.Default.MailOutline,
-                        contentDescription = "Mail Icon",
-                    )
-                }
-            }
+        AppTheme {
+            val colors = LocalAppColorScheme.current
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Search Bar
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(50))
-                    .background(Color(0xFFF0F0F0))
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.images),
-                    contentDescription = "Profile",
+                // Top Navigation Bar
+                Row(
                     modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Start your Journey...",
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(Icons.Default.AccountBox, contentDescription = "Profile Icon")
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Noudrah",
+                        fontSize = 30.sp,
+                        color = colors.onPrimary
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Dots Icon",
+                        )
+                        Icon(
+                            imageVector = Icons.Default.MailOutline,
+                            contentDescription = "Mail Icon",
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Search Bar
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(50))
+                        .background(colors.primary)
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.images),
+                        contentDescription = "Profile",
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Start your Journey...",
+                        color = colors.onPrimary
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(Icons.Default.AccountBox, contentDescription = "Profile Icon")
+                }
             }
         }
     }
 
     @Composable
     fun BottomNavigationBar(selectedItem: Int, onItemSelected: (Int) -> Unit) {
-        val context = LocalContext.current // 👈 الحصول على الـ Context
 
-        val items = listOf(
-            BottomNavItem("Home", Icons.Default.Home),
-            BottomNavItem("Video", Icons.Default.PlayArrow),
-            BottomNavItem("Accessibility", Icons.Rounded.Accessibility),
-            BottomNavItem("Notification", Icons.Default.Notifications),
-            BottomNavItem("Profile", Icons.Default.Person)
-        )
+        AppTheme {
+            val colors = LocalAppColorScheme.current
 
-        NavigationBar(
-            containerColor = Color.White,
-            tonalElevation = 4.dp
-        ) {
-            items.forEachIndexed { index, item ->
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = item.title
-                        )
-                    },
-                    label = {
-                        Text(text = item.title, fontSize = 10.sp)
-                    },
-                    selected = selectedItem == index,
-                    onClick = {
-                        onItemSelected(index)
+            val context = LocalContext.current
 
-                        // إذا كان الزر هو "Video"، ننتقل إلى VideoActivity
-                        if (index == 1) { // "Video" هو التبويب رقم 1 في الـ BottomNavBar
-                            val intent = Intent(context, VideosActivity::class.java)
-                            context.startActivity(intent)
-                        }
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color(0xFF1A2C50),
-                        unselectedIconColor = Color.Gray,
-                        indicatorColor = Color.Transparent
+            val items = listOf(
+                BottomNavItem("Home", Icons.Default.Home),
+                BottomNavItem("Video", Icons.Default.PlayArrow),
+                BottomNavItem("Accessibility", Icons.Rounded.Accessibility),
+                BottomNavItem("Notification", Icons.Default.Notifications),
+                BottomNavItem("Profile", Icons.Default.Person)
+            )
+
+            NavigationBar(
+                containerColor = colors.primary,
+                tonalElevation = 4.dp,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp, 20.dp, 0.dp, 0.dp))
+
+            ) {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp, 20.dp, 0.dp, 0.dp)),
+                        icon = {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.title
+                            )
+                        },
+                        label = {
+                            Text(
+                                text = item.title,
+                                fontSize = 10.sp,
+                                style = TextStyle(color = colors.onPrimary)
+                            )
+                        },
+                        selected = selectedItem == index,
+                        onClick = {
+                            onItemSelected(index)
+
+                            // إذا كان الزر هو "Video"، ننتقل إلى VideoActivity
+                            if (index == 1) { // "Video" هو التبويب رقم 1 في الـ BottomNavBar
+                                val intent = Intent(context, VideosActivity::class.java)
+                                context.startActivity(intent)
+                            }else if (index ==2){
+                                val intent = Intent(context, AccessibilityActivity::class.java)
+                                context.startActivity(intent)
+
+                            }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = colors.secondary,
+                            unselectedIconColor = colors.onPrimary,
+                            indicatorColor = Color.Transparent
+                        ),
                     )
-                )
+                }
             }
         }
     }
@@ -249,70 +280,87 @@ class HomeActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen(modifier: Modifier = Modifier) {
-        var selectedTab by remember { mutableStateOf(0) }
-        val viewModel: RedditViewModel = viewModel()
-        val posts by viewModel.posts.collectAsState()
-        val isLoading by viewModel.isLoading.collectAsState()
-        val error by viewModel.error.collectAsState()
-        Scaffold(
-            bottomBar = {
-                BottomNavigationBar(selectedItem = selectedTab) {
-                    selectedTab = it
-                }
-            }
-        ) { innerPadding ->
-            LazyColumn (
+        var isContrast by remember { mutableStateOf(false) }
+        var isMonochromeTheme by remember { mutableStateOf(false) }
+        AppTheme(isContrastTheme = isContrast, isMonoChrome = isMonochromeTheme ) {
+            val colors = LocalAppColorScheme.current
+
+            var selectedTab by remember { mutableStateOf(0) }
+            val viewModel: RedditViewModel = viewModel()
+            val posts by viewModel.posts.collectAsState()
+            val isLoading by viewModel.isLoading.collectAsState()
+            val error by viewModel.error.collectAsState()
+
+
+            Scaffold(
                 modifier = Modifier
-                    .padding(innerPadding)
                     .fillMaxSize()
-            ) {
-                // عرض باقي المحتويات هنا
-                item {
-                    HeaderSection()
+                    .background(color = colors.background),
+                bottomBar = {
+                    BottomNavigationBar(selectedItem = selectedTab) {
+                        selectedTab = it
+                    }
                 }
-                item {
-                    StoriesSection()
-                }
-                    when {
-                        isLoading -> {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(innerPadding),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
+            ) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(colors.background)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+
+                    ) {
+                        // عرض باقي المحتويات هنا
+                        item {
+                            HeaderSection()
+                        }
+                        item {
+                            StoriesSection()
+                        }
+                        when {
+                            isLoading -> {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(innerPadding),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
                                 }
+
                             }
 
-                        }
-
-                        error != null -> {
-                            item{
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(innerPadding),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(text = error!!)
+                            error != null -> {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(innerPadding),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(text = error!!)
+                                    }
                                 }
+
                             }
 
-                        }
-
-                        else -> {
+                            else -> {
 
                                 items(posts) { post ->
                                     RedditPostItem(post = post)
                                 }
 
+                            }
                         }
+
+
                     }
-
-
-
+                }
             }
         }
     }
@@ -321,8 +369,7 @@ class HomeActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun MainScreenPreview() {
-        MaterialTheme {
-            MainScreen()
-        }
+        MainScreen()
+
     }
 }

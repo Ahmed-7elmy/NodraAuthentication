@@ -17,7 +17,7 @@ import androidx.navigation.compose.*
 import com.example.nodrah_project.HomeActivity
 import com.example.nodrah_project.navigation.authNavGraph
 import com.example.nodrah_project.repository.AuthRepository
-import com.example.nodrah_project.ui.theme.Nodrah_projectTheme
+import com.example.nodrah_project.ui.theme.AppTheme
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 
@@ -31,8 +31,10 @@ class MainActivity : ComponentActivity() {
         val authRepository = AuthRepository(auth)
         Log.d("FirebaseCheck", "Current user: ${auth.currentUser?.email ?: "null"}")
 
+
+
         setContent {
-            Nodrah_projectTheme {
+            AppTheme {
                 val navController = rememberNavController()
                 val startDestination = remember {
                     if (authRepository.isUserLoggedIn()) "auth" else "auth"
