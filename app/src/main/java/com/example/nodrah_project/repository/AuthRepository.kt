@@ -9,6 +9,10 @@ sealed class AuthResult {
     object Success : AuthResult()
     data class Error(val message: String) : AuthResult()
 }
+//sealed class AuthResult {
+//    data class Success(val user: Any? = null) : AuthResult() // Adjust type as needed (e.g., FirebaseUser?)
+//    data class Error(val message: String) : AuthResult()
+//}
 
 class AuthRepository(private val auth: FirebaseAuth = FirebaseAuth.getInstance()) {
 

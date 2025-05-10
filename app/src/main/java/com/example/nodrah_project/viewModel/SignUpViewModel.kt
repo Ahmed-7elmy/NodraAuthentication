@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.nodrah_project.repository.AuthRepository
 import com.example.nodrah_project.repository.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -113,7 +114,7 @@ class SignUpViewModel(
     }
 
     // Google Sign-In
-    fun signInWithGoogle(idToken: String) {
+    fun signInWithGoogle(idToken: String) {//not used
         _loading.value = true
         val credential = GoogleAuthProvider.getCredential(idToken, null)
 
@@ -127,7 +128,35 @@ class SignUpViewModel(
                 }
             }
     }
+//    fun signUp() {for different errors
+//        if (!validateForm()) return
+//
+//        viewModelScope.launch {
+//            _loading.value = true
+//            _signUpResult.value = try {
+//                val result = authRepository.signUp(_email.value, _password.value)
+//                if (result is AuthResult.Success) {
+//                    sendVerificationEmail()
+//                }
+//                result
+//            } catch (e: FirebaseAuthUserCollisionException) {
+//                AuthResult.Error("Email already in use")
+//            } catch (e: Exception) {
+//                AuthResult.Error(e.message ?: "Sign up failed")
+//            }
+//            _loading.value = false
+//        }
+//    }
 
 
 
 }
+//Fix: Use dependency injection (e.g., Hilt) to provide AuthRepository. For now, you can pass it explicitly via the constructor:
+//kotlin
+//
+//Copy
+//class SignUpViewModel(
+//    private val authRepository: AuthRepository
+//) : ViewModel() {
+//    // Remove default instantiation
+//}
