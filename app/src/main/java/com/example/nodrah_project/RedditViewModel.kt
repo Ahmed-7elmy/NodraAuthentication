@@ -79,7 +79,8 @@ class RedditViewModel : ViewModel() {
 @Composable
 fun RedditFeedScreen(
     modifier: Modifier = Modifier,
-    viewModel: RedditViewModel = viewModel()
+    viewModel: RedditViewModel = viewModel(),
+    currentSettings: AccessibilitySettings
 ) {
 
     AppTheme {
@@ -125,7 +126,7 @@ fun RedditFeedScreen(
                             .padding(paddingValues)
                     ) {
                         items(posts) { post ->
-                            RedditPostItem(post = post)
+                            RedditPostItem(post = post, currentSettings)
                         }
                     }
                 }

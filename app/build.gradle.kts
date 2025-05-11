@@ -114,8 +114,10 @@ dependencies {
     implementation ("androidx.compose.ui:ui:1.5.4")
     implementation ("androidx.compose.material3:material3:1.2.0")
 //SharedPreferences
+
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
     implementation ("com.google.code.gson:gson:2.13.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
 
 

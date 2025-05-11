@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,19 +38,24 @@ import androidx.media3.ui.PlayerView
 import coil.request.CachePolicy
 import com.example.nodrah_project.screens.EmailVerificationScreen
 import com.example.nodrah_project.ui.theme.AppTheme
+import com.example.nodrah_project.ui.theme.DyslexicFont
 import com.example.nodrah_project.ui.theme.LocalAppColorScheme
 
 @Composable
-fun RedditPostItem(post: RedditPost) {
+fun RedditPostItem(post: RedditPost, currentSettings: AccessibilitySettings) {
 
-    AppTheme {
+    AppTheme(
+        isContrastTheme = currentSettings.isContrast,
+        isMonoChrome = currentSettings.isMonochrome
+    ) {
         val colors = LocalAppColorScheme.current
-
+        val context = LocalContext.current
+        val currentFont = if (currentSettings.useDyslexicFont) DyslexicFont else FontFamily.Default
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFFEDEDED))
+                .background(colors.background)
                 .padding(vertical = 10.dp)
 
         ) {
@@ -79,15 +85,18 @@ fun RedditPostItem(post: RedditPost) {
 
                         // Author
                         Text(
+                            modifier = Modifier.weight(1f), // Take remaining space
                             text = post.author,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = colors.onPrimary,
-                            modifier = Modifier.weight(1f) // Take remaining space
-                        )
+                            color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
+                            fontFamily = currentFont,
+                            fontSize = currentSettings.fontSize.sp,
+
+                            )
 
                         // More Options
                         Text(
-                            text = "...", color = colors.onPrimary, fontSize = 24.sp
+                            text = "...",color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
+                             fontSize = 24.sp
                         )
                     }
 
@@ -97,7 +106,9 @@ fun RedditPostItem(post: RedditPost) {
                     Text(
                         text = post.title,
                         style = MaterialTheme.typography.titleLarge,
-                        color = colors.onPrimary
+                        color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
+                        fontFamily = currentFont,
+                        fontSize = currentSettings.fontSize.sp,
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -107,7 +118,9 @@ fun RedditPostItem(post: RedditPost) {
                         Text(
                             text = it,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = colors.onPrimary
+                            color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
+                            fontFamily = currentFont,
+                            fontSize = currentSettings.fontSize.sp,
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -127,8 +140,7 @@ fun RedditPostItem(post: RedditPost) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(all = 8.dp)
-                            ,
+                            .padding(all = 8.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -136,7 +148,7 @@ fun RedditPostItem(post: RedditPost) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.like),
                                 contentDescription = "Like Button",
-                                tint = colors.onPrimary,
+                                tint = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
                                 modifier = Modifier.size(16.dp)
 
                             )
@@ -144,8 +156,9 @@ fun RedditPostItem(post: RedditPost) {
 
                             Text(
                                 text = "Like",
-                                fontSize = 20.sp,
-                                color = colors.onPrimary,
+                                fontSize = currentSettings.fontSize.sp,
+                                color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
+                                fontFamily = currentFont,
                                 modifier = Modifier.clickable { })
                         }
                         Row(
@@ -154,15 +167,15 @@ fun RedditPostItem(post: RedditPost) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.comment),
                                 contentDescription = "Comment Button",
-                                tint = colors.onPrimary,
-                                modifier = Modifier.size(16.dp)
+                                tint = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,                                modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(3.dp))
 
                             Text(
                                 text = "Comment",
-                                fontSize = 20.sp,
-                                color = colors.onPrimary,
+                                fontSize = currentSettings.fontSize.sp,
+                                fontFamily = currentFont,
+                                color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
                                 modifier = Modifier.clickable { })
                         }
                         Row(
@@ -171,15 +184,15 @@ fun RedditPostItem(post: RedditPost) {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = R.drawable.share),
                                 contentDescription = "Share Button",
-                                tint = colors.onPrimary,
-                                modifier = Modifier.size(16.dp)
+                                tint = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,                                modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(3.dp))
 
                             Text(
                                 text = "Share",
-                                fontSize = 20.sp,
-                                color = colors.onPrimary,
+                                fontSize = currentSettings.fontSize.sp,
+                                fontFamily = currentFont,
+                                color = if (currentSettings.isContrast) colors.onBackground else colors.onPrimary,
                                 modifier = Modifier.clickable { })
                         }
                     }

@@ -36,11 +36,18 @@ class VideosActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val accessibilitySettingsManager =
+                (application as MyApplication).accessibilitySettingsManager
+
+            val settings by accessibilitySettingsManager.accessibilitySettingsFlow.collectAsState(
+                initial = AccessibilitySettings()
+            )
             AppTheme {
                 val colors = LocalAppColorScheme.current
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    VideosScreens(modifier = Modifier.padding(innerPadding))
+                    VideosScreens(modifier = Modifier.padding(innerPadding),
+                        currentSettings = settings)
                 }
             }
         }
@@ -49,10 +56,12 @@ class VideosActivity : ComponentActivity() {
 }
 
 
-
-
 @Composable
-fun VideosScreens(viewModel: RedditViewModel = viewModel(),modifier: Modifier= Modifier) {
+fun VideosScreens(
+    viewModel: RedditViewModel = viewModel(),
+    modifier: Modifier = Modifier,
+    currentSettings: AccessibilitySettings
+) {
     AppTheme {
         val videoPosts by viewModel.videoPosts.collectAsState()
         val isVideoLoading by viewModel.isVideoLoading.collectAsState()
@@ -82,7 +91,10 @@ fun VideosScreens(viewModel: RedditViewModel = viewModel(),modifier: Modifier= M
                         .padding(paddingValues)
                 ) {
                     items(videoPosts) { post ->
-                        RedditPostItem(post = post) // هنستخدم نفس الـ Item Composable
+                        RedditPostItem(
+                            post = post,
+                            currentSettings
+                        ) // هنستخدم نفس الـ Item Composable
                     }
                 }
             }

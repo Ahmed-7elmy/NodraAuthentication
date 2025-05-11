@@ -16,7 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun VideosScreen(viewModel: RedditViewModel = viewModel()) {
+fun VideosScreen(viewModel: RedditViewModel = viewModel(),
+                 currentSettings: AccessibilitySettings) {
     val videoPosts by viewModel.videoPosts.collectAsState()
     val isVideoLoading by viewModel.isVideoLoading.collectAsState()
     val videoError by viewModel.videoError.collectAsState()
@@ -45,7 +46,7 @@ fun VideosScreen(viewModel: RedditViewModel = viewModel()) {
                     .padding(paddingValues)
             ) {
                 items(videoPosts) { post ->
-                    RedditPostItem(post = post) // هنستخدم نفس الـ Item Composable
+                    RedditPostItem(post = post, currentSettings) // هنستخدم نفس الـ Item Composable
                 }
             }
         }

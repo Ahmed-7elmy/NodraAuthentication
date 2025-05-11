@@ -49,20 +49,17 @@ import com.example.nodrah_project.ui.theme.DyslexicFont
 import com.example.nodrah_project.ui.theme.LocalAppColorScheme
 
 @Composable
-fun BottomNavigationBar(selectedItem: Int, onItemSelected: (Int) -> Unit) {
-    var lineHeightVal by remember { mutableStateOf(24.0) }
-    var isContrast by remember { mutableStateOf(false) }
-    var isMonochromeTheme by remember { mutableStateOf(false) }
-    var useCustomFont by remember { mutableStateOf(false) }
-    val currentFont = if (useCustomFont) DyslexicFont else FontFamily.Default
-    var fontSizeVal by remember { mutableStateOf(20.0) }
-    var letterSpacingVal by remember { mutableStateOf(0.0) }
-    var contentScaleVal by remember { mutableStateOf(400.0) }
+fun BottomNavigationBar(
+    selectedItem: Int,
+    onItemSelected: (Int) -> Unit,
+    currentSettings: AccessibilitySettings
+) {
 
-
-    AppTheme(isContrastTheme = isContrast, isMonoChrome = isMonochromeTheme) {
+    AppTheme(isContrastTheme = currentSettings.isContrast, currentSettings.isMonochrome) {
         val colors = LocalAppColorScheme.current
         val context = LocalContext.current
+        val currentFont = if (currentSettings.useDyslexicFont) DyslexicFont else FontFamily.Default
+
         val items = listOf(
             BottomNavItem("Home", Icons.Default.Home),
             BottomNavItem("Video", Icons.Default.PlayArrow),
@@ -86,34 +83,31 @@ fun BottomNavigationBar(selectedItem: Int, onItemSelected: (Int) -> Unit) {
                     icon = {
                         Icon(
                             imageVector = item.icon,
-                            contentDescription = item.title,
-                            tint = colors.onPrimary
+                            contentDescription = item.title
                         )
                     },
                     label = {
                         Text(
                             text = item.title,
-                            fontSize = fontSizeVal.sp,
+                            fontSize = 10.sp,
                             style = TextStyle(color = colors.onPrimary),
-                            fontFamily = currentFont,
+                            fontFamily = currentFont
                         )
                     },
                     selected = selectedItem == index,
                     onClick = {
                         onItemSelected(index)
 
-                        if (index == 0) {
+                        if (index == 0) { //
                             val intent = Intent(context, HomeActivity::class.java)
                             context.startActivity(intent)
-                        }else if (index == 1) {
+                        } else if (index == 1) {
                             val intent = Intent(context, VideosActivity::class.java)
                             context.startActivity(intent)
-                        } else if (index == 2) {
-                            val intent = Intent(context, AccessibilityActivity::class.java)
+                        }else if (index==2){
+                            val intent =Intent(context, AccessibilityActivity::class.java)
                             context.startActivity(intent)
-
-
-                    }
+                        }
                     },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = colors.secondary,
@@ -125,6 +119,7 @@ fun BottomNavigationBar(selectedItem: Int, onItemSelected: (Int) -> Unit) {
         }
     }
 }
+
 
 @Composable
 fun RowButton(
@@ -281,7 +276,7 @@ fun CardLetterSpacing(
     letterSpacingValue: Double,
     onLetterSpacingChange: (Double) -> Unit,
 
-) {
+    ) {
     val colors = LocalAppColorScheme.current
 
     ElevatedCard(
@@ -318,7 +313,7 @@ fun CardLetterSpacing(
                     contentDescription = "down arrow",
                     modifier = Modifier
                         .clickable {
-                            onLetterSpacingChange(letterSpacingValue -1)
+                            onLetterSpacingChange(letterSpacingValue - 1)
                         }//logic
                 )
                 Spacer(modifier = Modifier.width(8.dp))
