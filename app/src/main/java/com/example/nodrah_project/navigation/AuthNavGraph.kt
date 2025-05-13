@@ -21,9 +21,12 @@ import com.example.nodrah_project.screens.ForgotPasswordScreen
 import com.example.nodrah_project.screens.LoginScreen
 import com.example.nodrah_project.screens.PutYourPhoneNumberScreen
 import com.example.nodrah_project.screens.SignUpScreen
+import com.example.nodrah_project.screens.OnboardingScreen
 import com.example.nodrah_project.ui.screens.PhoneVerificationScreen
 import com.example.nodrah_project.viewModel.PhoneAuthViewModel
 import com.example.nodrah_project.viewModel.SignUpViewModel
+import com.example.nodrah_project.data.PreferencesHelper
+
 
 // Helper function to find Activity from Context
 fun Context.findActivity(): Activity {
@@ -53,9 +56,36 @@ fun NavGraphBuilder.authNavGraph(
     authRepository: AuthRepository = AuthRepository()
 ) {
     navigation(
-        startDestination = "login",
+        startDestination = "initial_check",
         route = "auth"
     ) {
+        composable("initial_check") {
+            val context = LocalContext.current
+            val isFirstLaunch = PreferencesHelper.isFirstLaunch(context) // Use PreferencesHelper
+
+            LaunchedEffect(Unit) {
+                val destination = if (isFirstLaunch) "onboarding" else "login"
+                navController.navigate(destination) {
+                    popUpTo("initial_check") { inclusive = true }
+                }
+            }
+        }
+
+
+        composable("onboarding") {
+            val context = LocalContext.current
+            OnboardingScreen(
+                onComplete = {
+                    PreferencesHelper.setFirstLaunchCompleted(context) // ✅ use captured context
+                    navController.navigate("login") {
+                        popUpTo("onboarding") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+
+
         composable("login") {
             LoginScreen(
                 onLoginSuccess = {
