@@ -57,6 +57,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -297,17 +298,7 @@ class AccessibilityActivity : ComponentActivity() {
                         },
                         fontFamily = currentFont
                     )
-                    Text(
-                        "Lorem Ipsum\n" + "\"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...\"\n" + "\"There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...\"",
-                        style = TextStyle(
-                            lineHeight = currentSettings.lineHeight.sp,
-                            color = colors.onBackground,
-                            fontSize = currentSettings.fontSize.sp,
-                            letterSpacing = currentSettings.letterSpacing.sp
-                        ),
-                        fontFamily = currentFont,
-                        modifier = Modifier.padding(8.dp)
-                    )
+
                     val imageModifier = Modifier
                         .size(currentSettings.contentScale.dp)
                         .border(BorderStroke(1.dp, Color.Black))
@@ -315,16 +306,10 @@ class AccessibilityActivity : ComponentActivity() {
                     Image(
                         painter = painterResource(id = R.drawable.demopic),
                         contentDescription = null,
-//                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.Fit,
                         modifier = imageModifier,
-                        colorFilter = if (currentSettings.isMonochrome) ColorFilter.colorMatrix(
-                            ColorMatrix().apply {
-                                setToSaturation(
-                                    0f
-                                )
-                            }) else null
-                    )
 
+                        )
                 }
             }
         }

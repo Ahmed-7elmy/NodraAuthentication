@@ -300,7 +300,7 @@ fun HomeScreen(
                                         .padding(innerPadding),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    CircularProgressIndicator()
+                                    CircularProgressIndicator(color = colors.onPrimary)
                                 }
                             }
 

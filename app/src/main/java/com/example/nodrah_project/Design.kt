@@ -11,6 +11,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
@@ -18,7 +20,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -55,7 +60,7 @@ fun RedditPostItem(post: RedditPost, currentSettings: AccessibilitySettings) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(colors.background)
+                .background(if(currentSettings.isContrast)Color.DarkGray else Color(0xFFEDEDED))
                 .padding(vertical = 10.dp)
 
         ) {
@@ -127,7 +132,7 @@ fun RedditPostItem(post: RedditPost, currentSettings: AccessibilitySettings) {
 
                     // Image
                     post.imageUrl?.let { url ->
-                        SubredditImage(url = url)
+                        SubredditImage(url = url,currentSettings)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
@@ -136,6 +141,10 @@ fun RedditPostItem(post: RedditPost, currentSettings: AccessibilitySettings) {
                         SubredditVideo(url = url)
                         Spacer(modifier = Modifier.height(8.dp))
                     }
+                    HorizontalDivider(modifier = Modifier
+                        .fillMaxWidth(),
+                        thickness = 1.dp,
+                        color = colors.onPrimary)
                     // Like, Comment, Share Buttons
                     Row(
                         modifier = Modifier
@@ -204,10 +213,12 @@ fun RedditPostItem(post: RedditPost, currentSettings: AccessibilitySettings) {
 
 
 @Composable
-fun SubredditImage(url: String) {
+fun SubredditImage(url: String,currentSettings: AccessibilitySettings) {
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val colors = LocalAppColorScheme.current
+
 
     Box(modifier = Modifier.fillMaxWidth()) {
         AsyncImage(
@@ -218,20 +229,28 @@ fun SubredditImage(url: String) {
                     .build()
             },
             contentDescription = "Reddit Image",
-            contentScale = ContentScale.FillWidth,
+            colorFilter = if (currentSettings.isMonochrome) ColorFilter.colorMatrix(
+                ColorMatrix().apply {
+                    setToSaturation(
+                        0f
+                    )
+                }) else null,
+//            contentScale = ContentScale.FillWidth,
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 100.dp),
+                .heightIn(min = 100.dp)
+                .size(currentSettings.contentScale.dp)
+            ,
             onLoading = { loading = true },
             onSuccess = { loading = false },
             onError = { error = true; loading = false })
 
         if (loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = colors.onPrimary)
         }
 
         if (error) {
-            Text("Failed to load image", modifier = Modifier.align(Alignment.Center))
+            Text("Failed to load image", modifier = Modifier.align(Alignment.Center),color = colors.onPrimary)
         }
     }
 }
